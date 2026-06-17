@@ -1,0 +1,14 @@
+import { DataSource } from 'typeorm';
+import * as dotenv from 'dotenv';
+
+export const AppDataSource = new DataSource({
+    type: (process.env.DB_TYPE || 'mysql') as any,
+    host: process.env.DB_HOST || 'mysqldb',
+    port: parseInt(process.env.DB_PORT || '330', 10),
+    username: process.env.DB_USERNAME || 'root',
+    password: process.env.DB_PASSWORD || 'root',
+    database: process.env.DB_DATABASE || 'mock_db',
+    entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    migrations: ['dist/src/migrations/*.js'],
+    synchronize: false,
+});
