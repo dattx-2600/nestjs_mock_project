@@ -11,11 +11,12 @@ import {
   AcceptLanguageResolver,
 } from 'nestjs-i18n';
 import { OrderModule } from './order/order.module';
-import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
-import { OrderItemModule } from './order_item/order_item.module';
 import { AttachmentModule } from './attachment/attachment.module';
 import * as dotenv from 'dotenv';
+import { AuthModule } from './auth/auth.module';
+import { RedisModule } from './redis/redis.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -48,10 +49,11 @@ import * as dotenv from 'dotenv';
       inject: [ConfigService],
     }),
     OrderModule,
-    CategoryModule,
     ProductModule,
-    OrderItemModule,
     AttachmentModule,
+    AuthModule,
+    RedisModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
