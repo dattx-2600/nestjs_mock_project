@@ -11,6 +11,15 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  redisdb:
+    image: redis:7.0-alpine
+    container_name: mock_redis_container
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+
   mock-app:
     build:
       context: .
@@ -27,12 +36,16 @@ services:
       - DATABASE_USER=root
       - DATABASE_PASSWORD=root
       - DATABASE_NAME=mock_db
+      - REDIS_HOST=redisdb
+      - REDIS_PORT=6379
     command: npm run start:dev
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
       - mysqldb
+      - redisdb
 
 volumes:
   mysql_data:
+  redis_data:

@@ -23,7 +23,7 @@ export class UsersService {
   async updateProfile(userId: number, updateData: { name?: string; email?: string }) {
     const user = await this.findOne(userId); // Hàm findOne cũ đã có sẵn
 
-    if (updateData.name) user.name = updateData.name;
+    if (updateData.name) user.fullName = updateData.name;
     if (updateData.email) user.email = updateData.email;
 
     return await this.userRepository.save(user);
