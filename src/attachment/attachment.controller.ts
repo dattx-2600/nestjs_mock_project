@@ -1,34 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Res, Param } from '@nestjs/common';
 import { AttachmentService } from './attachment.service';
-import { CreateAttachmentDto } from './dto/create-attachment.dto';
-import { UpdateAttachmentDto } from './dto/update-attachment.dto';
+import * as express from 'express';
 
 @Controller('attachment')
 export class AttachmentController {
   constructor(private readonly attachmentService: AttachmentService) {}
 
-  @Post()
-  create(@Body() createAttachmentDto: CreateAttachmentDto) {
-    return this.attachmentService.create(createAttachmentDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.attachmentService.findAll();
-  }
-
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.attachmentService.findOne(+id);
-  }
+  async getAttachment(
+    @Param('id') id: string,
+    @Res() res: express.Response
+  ) {
+    const filePath = await this.attachmentService.getAttachmentPath(+id);
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAttachmentDto: UpdateAttachmentDto) {
-    return this.attachmentService.update(+id, updateAttachmentDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.attachmentService.remove(+id);
+    return res.sendFile(filePath);
   }
 }

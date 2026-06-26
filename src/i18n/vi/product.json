@@ -1,0 +1,15 @@
+{
+  "validation": {
+    "category_id_not_empty": "ID Danh mục không được để trống",
+    "name_not_empty": "Tên sản phẩm không được để trống",
+    "description_not_empty": "Mô tả không được để trống",
+    "price_min": "Giá sản phẩm không được âm",
+    "stock_min": "Số lượng tồn kho không được âm"
+  },
+  "error": {
+    "not_found": "Sản phẩm với ID {id} không tồn tại"
+  },
+  "success": {
+    "deleted": "Đã đưa sản phẩm ID {id} vào thùng rác"
+  }
+}

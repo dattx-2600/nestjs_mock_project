@@ -1,26 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAttachmentDto } from './dto/create-attachment.dto';
-import { UpdateAttachmentDto } from './dto/update-attachment.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Attachment } from './entities/attachment.entity';
+import { join } from 'path';
+import { existsSync } from 'fs';
 
 @Injectable()
 export class AttachmentService {
-  create(createAttachmentDto: CreateAttachmentDto) {
-    return 'This action adds a new attachment';
-  }
+  constructor(
+    @InjectRepository(Attachment)
+    private readonly attachmentRepository: Repository<Attachment>,
+  ) {}
 
-  findAll() {
-    return `This action returns all attachment`;
-  }
+  async getAttachmentPath(id: number): Promise<string> {
+    const attachment = await this.attachmentRepository.findOneBy({ id });
 
-  findOne(id: number) {
-    return `This action returns a #${id} attachment`;
-  }
+    if (!attachment) {
+      throw new NotFoundException('Hình ảnh không tồn tại trên hệ thống');
+    }
 
-  update(id: number, updateAttachmentDto: UpdateAttachmentDto) {
-    return `This action updates a #${id} attachment`;
-  }
+    const absolutePath = join(process.cwd(), attachment.filePath);
 
-  remove(id: number) {
-    return `This action removes a #${id} attachment`;
+    if (!existsSync(absolutePath)) {
+      throw new NotFoundException('File vật lý đã bị xóa hoặc không tìm thấy');
+    }
+
+    return absolutePath;
   }
 }
