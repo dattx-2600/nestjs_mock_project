@@ -5,7 +5,10 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn
 } from 'typeorm';
+import { Product } from '../../product/entities/product.entity';
 
 @Entity('attachment')
 @Index('IDX_ATTACHMENT_ENTITY', ['entityType', 'entityId'])
@@ -36,4 +39,8 @@ export class Attachment {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @ManyToOne(() => Product, (product) => product.attachments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'entity_id' })
+  product: Product;
 }

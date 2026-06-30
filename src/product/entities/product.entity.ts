@@ -7,18 +7,19 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Category } from '../../category/entities/category.entity';
 import {OrderItem} from '../../order_item/entities/order_item.entity';
-import { Order } from '../../order/entities/order.entity';
+import { Attachment } from '../../attachment/entities/attachment.entity';
 
 @Entity('products')
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({name: 'category_id'})
-  categoryId: string;
+  @Column({ name: 'category_id' })
+  categoryId: number;
 
   @Column()
   name: string;
@@ -47,8 +48,12 @@ export class Product {
   @ManyToOne(() => Category, (category) => category.products, {
     onDelete: 'CASCADE',
   })
-  category: Category[];
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
+
+  @OneToMany(() => Attachment, (attachment) => attachment.product)
+  attachments: Attachment[];
 }
