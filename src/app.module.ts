@@ -17,6 +17,9 @@ import * as dotenv from 'dotenv';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { UsersModule } from './users/users.module';
+import { CartModule } from './cart/cart.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -54,6 +57,14 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     RedisModule,
     UsersModule,
+    CartModule,
+    EventEmitterModule.forRoot({
+      wildcard: false,
+      delimiter: '.',
+    }),
+    CacheModule.register({
+      isGlobal: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

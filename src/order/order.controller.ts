@@ -1,34 +1,57 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { OrderService } from './order.service';
+import { Controller, Get, Post, Patch, Param, Body, Query, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { CancelOrderDto } from './dto/cancel-order.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { OrderService } from './order.service';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { OrderResponseDto } from './dto/order-response.dto';
+import { OrderQueryDto } from './dto/order-query.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
-@Controller('order')
+
+@ApiTags('Orders')
+@ApiBearerAuth('JWT-auth')
+@UseGuards(AuthGuard, RolesGuard)
+@Roles('user')
+@Controller('api/orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly ordersService: OrderService) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  async createOrder(@Request() req, @Body() createOrderDto: CreateOrderDto) {
+    return await this.ordersService.create(req.user.sub, createOrderDto);
   }
 
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  async getMyOrders(
+    @Request() req,
+    @Query() query: OrderQueryDto
+  ) {
+    const pagination = await this.ordersService.findAllByUser(req.user.sub, {
+      page: query.page || 1,
+      limit: query.limit || 10
+    });
+
+    return {
+        items: pagination.items.map((order) => new OrderResponseDto(order)),
+        meta: pagination.meta,
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+  async getOrderDetail(@Request() req, @Param('id') id: string) {
+    const order = await this.ordersService.findOne(+id);
+
+    if (order.user.id !== req.user.id) {
+      throw new ForbiddenException('Bạn không có quyền xem đơn hàng này');
+    }
+
+    return new OrderResponseDto(order);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+  @Patch(':id/cancel')
+  async cancelOrder(@Request() req, @Param('id') id: string, @Body() cancelOrderDto: CancelOrderDto) {
+    return  await this.ordersService.cancelByUser(+id, req.user.sub, cancelOrderDto);
   }
 }
